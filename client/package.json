@@ -2,7 +2,6 @@
   "scripts": {
     "dev": "vite",
     "online": "vite --host"
-
   },
   "dependencies": {
     "colyseus.js": "^0.16.19",

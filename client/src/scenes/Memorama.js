@@ -282,6 +282,40 @@ export class Memorama extends Phaser.Scene {
         gameOverText.on(Phaser.Input.Events.POINTER_DOWN, () => this.reiniciarJuego());
     }
 
+    crearFormulario() {
+        // Insertar el formulario en Phaser
+        const element = this.add.dom(this.cameras.main.centerX, -500)
+        .createFromCache('formulario')
+        .setScale(1.5);
+        // Manejo de submit
+        this.tweens.add({
+            targets: element,
+            x: this.cameras.main.centerX,
+            y: this.cameras.main.centerY,
+            duration: 800,
+            repeat: 0,
+        });
+
+
+        const form = element.getChildByID("player-form");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const data = new FormData(form);
+
+            const nombre = data.get("nombre");
+            const sucursal = data.get("sucursal");
+            const telefono = data.get("telefono");
+
+            // Enviar a Colyseus
+            this.room.send("registrar", { nombre, sucursal, telefono });
+
+            this.room.onMessage("registrado", () => {
+                console.log("Bienvenido: ", nombre)
+            });
+
+        });
+    }
+
     async create() {
         // Fondo adaptado a la pantalla
         this.background = this.add.image(0, 0, 'background_game');
@@ -312,6 +346,8 @@ export class Memorama extends Phaser.Scene {
             yoyo: true,
             repeat: -1
         });
+
+        this.crearFormulario();
         
         const btnReady = this.add.text(
             centerX,
@@ -327,7 +363,7 @@ export class Memorama extends Phaser.Scene {
             this.room.send("ready");
             btnReady.setText("✔️ Esperando...");
         });
-
+        
         // Cuando el servidor mande "start"
         this.room.onMessage("start", () => {
             if (this.juegoIniciado) return; // evitar doble ejecución

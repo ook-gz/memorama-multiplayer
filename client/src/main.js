@@ -6,8 +6,8 @@ import { Memorama } from './scenes/Memorama.js';
 // Configuración del juego
 const config = {
     type: Phaser.AUTO,
-    width: 980,
-    height: 1280,
+    width: 1200,
+    height: 1920,
     backgroundColor: '#000000',
     parent: 'game-container', // contenedor en HTML
     scene: [Boot, Preloader, Menu, Memorama],
@@ -21,8 +21,8 @@ const config = {
   scale: {
         mode: Phaser.Scale.FIT, // Ajusta el canvas dentro del contenedor
         autoCenter: Phaser.Scale.CENTER_BOTH, // Centra en horizontal y vertical
-        width: 920, // base lógica (más cómodo en vertical)
-        height: 1280, // base lógica en vertical
+        width: 1080, // base lógica (más cómodo en vertical)
+        height: 1920, // base lógica en vertical
         min: {
             width: 320,
             height: 480

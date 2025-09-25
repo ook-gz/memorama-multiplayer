@@ -30,7 +30,7 @@ export class Preloader extends Phaser.Scene {
     preload() {
         // this.load.image('background', 'assets/space.png');
         this.load.image('background_game', 'assets/fondo.jpg');
-        this.load.html("formulario", "assets/components/form.html");
+        this.load.html('formulario', 'assets/components/form.html');
 
         //Cartas
         this.load.image('reverso', 'assets/reverso.jpg');
