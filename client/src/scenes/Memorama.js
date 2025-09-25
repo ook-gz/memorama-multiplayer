@@ -284,7 +284,8 @@ export class Memorama extends Phaser.Scene {
 
     crearFormulario() {
         // Insertar el formulario en Phaser
-        const element = this.add.dom(this.cameras.main.centerX, -500)
+        const posicionInicialForm = -500;
+        const element = this.add.dom(this.cameras.main.centerX, posicionInicialForm)
         .createFromCache('formulario')
         .setScale(1.5);
         // Manejo de submit
@@ -295,7 +296,6 @@ export class Memorama extends Phaser.Scene {
             duration: 800,
             repeat: 0,
         });
-
 
         const form = element.getChildByID("player-form");
         form.addEventListener("submit", (e) => {
@@ -311,6 +311,13 @@ export class Memorama extends Phaser.Scene {
 
             this.room.onMessage("registrado", () => {
                 console.log("Bienvenido: ", nombre)
+                this.tweens.add({
+                    targets: element,
+                    x: this.cameras.main.centerX,
+                    y: posicionInicialForm,
+                    duration: 800,
+                    repeat: 0,
+                });
             });
 
         });
