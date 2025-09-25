@@ -8,8 +8,8 @@ export const crearCartas = ({
     let isFlipping = false;
     const backTexture = "reverso";
 
-    const CARD_WIDTH = 140;
-    const CARD_HEIGHT = 200;
+    const CARD_WIDTH = 200;
+    const CARD_HEIGHT = 280;
 
     // Crear carta con tamaño fijo
     const card = scene.add.image(x, y, backTexture)
@@ -24,7 +24,7 @@ export const crearCartas = ({
 
         scene.tweens.add({
             targets: card,
-            scaleX: 0.251,
+            scaleX: 0.36,
             duration: 200,
             ease: "Linear",
             onComplete: () => {
@@ -34,13 +34,14 @@ export const crearCartas = ({
                 } else {
                     card.setTexture(backTexture);
                 }
-
+                
+                card.setScale(CARD_WIDTH / card.width, CARD_HEIGHT / card.height);
                 // card.setDisplaySize(CARD_WIDTH, CARD_HEIGHT);
 
                 // Reabrir la carta
                 scene.tweens.add({
                     targets: card,
-                    scaleX: 0.251,
+                    scaleX: 0.36,
                     duration: 200,
                     ease: "Linear",
                     onComplete: () => {

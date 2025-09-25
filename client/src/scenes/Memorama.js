@@ -5,15 +5,14 @@ import { Client } from 'colyseus.js';
 export class Memorama extends Phaser.Scene {
 
     cartasNombres = [
-        "card1","card2","card3","card4",
-        "card5","card6","card7","card8"
-    ];
+        "card1","card2","card3", "card4", "card5", "card6", "card7", "card8", "card9"
+     ];
 
     contenedorJuego = {
         x: 150,
         y: 170,
-        paddingX: 50,
-        paddingY: 50
+        paddingX: 100,
+        paddingY: 140
     }
 
     constructor() {
@@ -31,10 +30,17 @@ export class Memorama extends Phaser.Scene {
         
         this.tiempoRestante = 45; // segundos de cuenta regresiva
         this.tiempoTexto;         // texto en pantalla
+        this.paresTexto;         // texto en pantalla
         this.temporizador;        // evento de Phaser
 
+        this.pares_completados = 0;
+        this.totalPares = 0;
+
         this.puedeJugar = false;
-        this.client = new Client("ws://localhost:2567");
+
+        this.juegoIniciado = false;
+        
+        this.client = new Client("http://192.168.0.27:2567");
 
               // 🔹 limpiar al cerrar escena
         this.events.on("shutdown", () => {
@@ -54,9 +60,21 @@ export class Memorama extends Phaser.Scene {
     }
 
     crearContenedorCartas() {
+        const seleccionadas = Phaser.Utils.Array.Shuffle(this.cartasNombres).slice(0, 6);
+
+        this.totalPares = seleccionadas.length;
+        
+        this.paresTexto = this.add.text(this.sys.game.scale.width - 480, 30, `Pares encontrados: ${this.pares_completados}/6`, {
+            fontSize: `${getResponsiveFontSize(32, this.sys.game.scale.width)}px`,
+            color: "#ffffff",
+            stroke: "#000000",
+            strokeThickness: 4
+        }).setOrigin(1, 0).setDepth(5);
+
+        // 2. Duplicar para formar los pares
         const cartasBarajadas = Phaser.Utils.Array.Shuffle([
-            ...this.cartasNombres,
-            ...this.cartasNombres
+            ...seleccionadas,
+            ...seleccionadas
         ]);
 
         const totalCartas = cartasBarajadas.length;
@@ -222,6 +240,9 @@ export class Memorama extends Phaser.Scene {
 
                 carta.flip(() => {
                     if (this.cartaAbierta.cardName === carta.cardName) {
+
+                        this.pares_completados++;
+                        this.paresTexto.setText(`Pares encontrados: ${this.pares_completados}/6`);
                         
                         this.cartaAbierta.destroy();
                         carta.destroy();
@@ -246,7 +267,6 @@ export class Memorama extends Phaser.Scene {
 
                         const tiempoFinal = 60 - this.tiempoRestante;
                         this.room.send("terminado", { tiempo: tiempoFinal });
-                        
                     }
                 });
 
@@ -263,11 +283,66 @@ export class Memorama extends Phaser.Scene {
     }
 
     async create() {
+        // Fondo adaptado a la pantalla
         this.background = this.add.image(0, 0, 'background_game');
         resizeBackground(this.background, this.cameras.main, 'cover');
         setupResizeListener(this, this.background, 'cover');
         
+        // Usamos las coordenadas del centro de la cámara
+        const centerX = this.cameras.main.centerX;
+        const centerY = this.cameras.main.centerY;
+
+        const mensajeEspera = this.add.text(
+            centerX,
+            centerY,
+            "Presione para iniciar el juego",
+            {
+                align: "center",
+                strokeThickness: 4,
+                fontSize: `${getResponsiveFontSize(40, this.sys.game.scale.width)}px`,
+                fontStyle: "bold",
+                color: "#8c7ae6"
+            }
+        ).setOrigin(0.5).setDepth(10).setInteractive();
+        
+        this.add.tween({
+            targets: mensajeEspera,
+            duration: 800,
+            alpha: 0,
+            yoyo: true,
+            repeat: -1
+        });
+        
+        const btnReady = this.add.text(
+            centerX,
+            centerY + 100, // debajo del mensaje
+            "Listo",
+            { fontSize: `${getResponsiveFontSize(63, this.sys.game.scale.width)}px`, color: "#0f0" }
+        ).setOrigin(0.5).setDepth(10).setInteractive();
+        
+        // Escuchar ganador
         this.room = await this.client.joinOrCreate("memorama");
+        
+        btnReady.on("pointerdown", () => {
+            this.room.send("ready");
+            btnReady.setText("✔️ Esperando...");
+        });
+
+        // Cuando el servidor mande "start"
+        this.room.onMessage("start", () => {
+            if (this.juegoIniciado) return; // evitar doble ejecución
+            this.juegoIniciado = true;
+            
+            this.add.tween({
+                targets: [btnReady, mensajeEspera],
+                ease: Phaser.Math.Easing.Bounce.InOut,
+                y: -1000,
+                onComplete: () => {
+                    this.juegoIniciado = true;
+                    this.iniciarJuego();
+                }
+            });
+        });
 
         this.room.onMessage("ganador", ({ jugador, tiempo }) => {
             if (this.room.sessionId === jugador) {
@@ -277,54 +352,7 @@ export class Memorama extends Phaser.Scene {
             }
             this.reiniciarJuego();
         });
-        
-        const mensajeEspera = this.add.text(
-            this.sys.game.scale.width / 2,
-            this.sys.game.scale.height / 2,
-            "Presione para iniciar el juego", {
-            align: "center", strokeThickness: 4,
-            fontSize: `${getResponsiveFontSize(40, this.sys.game.scale.width)}px`,
-            fontStyle: "bold", color: "#8c7ae6"
-        }).setOrigin(.5).setDepth(3).setInteractive();
 
-        this.add.tween({ targets: mensajeEspera, duration: 800, alpha: 0, yoyo: true, repeat: -1 });
 
-        const btnReady = this.add.text(
-            this.sys.game.scale.width / 2,
-            this.sys.game.scale.height / 2 + 100,
-            "Listo", { fontSize: "40px", color: "#0f0" }
-        ).setOrigin(0.5).setDepth(3).setInteractive();
-
-        btnReady.on("pointerdown", () => {
-            this.room.send("ready");
-            btnReady.setText("✔️ Esperando...");
-        });
-
-        this.room.onMessage("start", () => {
-            this.add.tween({
-                targets: [btnReady, mensajeEspera],
-                ease: Phaser.Math.Easing.Bounce.InOut,
-                y: -1000,
-                onComplete: () => this.iniciarJuego()
-            });
-        });
-        
-        /*
-            const titleText = this.add.text(this.sys.game.scale.width / 2, this.sys.game.scale.height / 2,
-                "Toque la pantalla \n para iniciar el juego",
-                { align: "center", strokeThickness: 4, fontSize: `${getResponsiveFontSize(40, this.sys.game.scale.width)}px`, fontStyle: "bold", color: "#8c7ae6" }
-            ).setOrigin(.5).setDepth(3).setInteractive();
-
-            this.add.tween({ targets: titleText, duration: 800, alpha: 0, yoyo: true, repeat: -1 });
-
-            titleText.on(Phaser.Input.Events.POINTER_DOWN, () => {
-                this.add.tween({
-                    targets: titleText,
-                    ease: Phaser.Math.Easing.Bounce.InOut,
-                    y: -1000,
-                    onComplete: () => this.iniciarJuego()
-                });
-            });
-        */
     }
 }

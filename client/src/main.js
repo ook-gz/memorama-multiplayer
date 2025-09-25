@@ -21,7 +21,7 @@ const config = {
   scale: {
         mode: Phaser.Scale.FIT, // Ajusta el canvas dentro del contenedor
         autoCenter: Phaser.Scale.CENTER_BOTH, // Centra en horizontal y vertical
-        width: 980, // base lógica (más cómodo en vertical)
+        width: 920, // base lógica (más cómodo en vertical)
         height: 1280, // base lógica en vertical
         min: {
             width: 320,

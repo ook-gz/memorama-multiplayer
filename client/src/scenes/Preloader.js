@@ -17,7 +17,6 @@ export class Preloader extends Phaser.Scene {
         logo.setOrigin(0.5, 0.5); // Centrado (por si la imagen no estaba centrada)
 
         
-        
         // crear barra debajo del logo
         crearLoader(this, logo, {
             width: 320,
@@ -30,24 +29,22 @@ export class Preloader extends Phaser.Scene {
 
     preload() {
         // this.load.image('background', 'assets/space.png');
-        this.load.image('logo', 'assets/phaser.png');
-        this.load.spritesheet('ship', 'assets/spaceship.png', { frameWidth: 176, frameHeight: 96 });
-
         this.load.image('background_game', 'assets/fondo.jpg');
         this.load.html("formulario", "assets/components/form.html");
 
         //Cartas
-        this.load.image('reverso', 'assets/reverso_carta.png');
-        this.load.image('card1', 'assets/cartas/delsey_img.png');
-        this.load.image('card2', 'assets/cartas/diapro_img.png');
-        this.load.image('card3', 'assets/cartas/escudo_img.png');
-        this.load.image('card4', 'assets/cartas/evenflo_img.png');
-        this.load.image('card5', 'assets/cartas/kleenbebe_img.png');
-        this.load.image('card6', 'assets/cartas/kleenex_img.png');
-        this.load.image('card7', 'assets/cartas/kotex_img.png');
-        this.load.image('card8', 'assets/cartas/petalo_img.png');
+        this.load.image('reverso', 'assets/reverso.jpg');
+
+        this.load.image('card1', 'assets/cartas/02-Slogan-ultra.jpg');
+        this.load.image('card2', 'assets/cartas/03-El-Éxito-de-tu-marca.jpg');
+        this.load.image('card3', 'assets/cartas/04-Logo-FA.jpg');
+        this.load.image('card4', 'assets/cartas/05-Losartán.jpg');
+        this.load.image('card5', 'assets/cartas/06-Dexlasoprazol.jpg');
+        this.load.image('card6', 'assets/cartas/09-Vildagliptina_Metfor.jpg');
+        this.load.image('card7', 'assets/cartas/10-Desvenlafaxina.jpg');
+        this.load.image('card8', 'assets/cartas/11-Acemetacina.jpg');
+        this.load.image('card9', 'assets/cartas/04-Sildenafil.jpg');
     }
-        
 
     create() {
         this.scene.start('Memorama');
