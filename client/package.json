@@ -6,9 +6,11 @@
   "dependencies": {
     "colyseus.js": "^0.16.19",
     "phaser": "^3.90.0",
-    "phaser3-rex-plugins": "^1.80.16"
+    "phaser3-rex-plugins": "^1.80.16",
+    "sweetalert2": "^11.23.0"
   },
   "devDependencies": {
-    "vite": "^6.3.6"
+    "vite": "^6.3.6",
+    "vite-plugin-pwa": "^1.0.3"
   }
 }

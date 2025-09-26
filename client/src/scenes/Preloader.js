@@ -34,6 +34,8 @@ export class Preloader extends Phaser.Scene {
 
         //Cartas
         this.load.image('reverso', 'assets/reverso.jpg');
+        this.load.image('reverso3', 'assets/reverso3.jpg');
+
 
         this.load.image('card1', 'assets/cartas/02-Slogan-ultra.jpg');
         this.load.image('card2', 'assets/cartas/03-El-Éxito-de-tu-marca.jpg');
@@ -44,6 +46,9 @@ export class Preloader extends Phaser.Scene {
         this.load.image('card7', 'assets/cartas/10-Desvenlafaxina.jpg');
         this.load.image('card8', 'assets/cartas/11-Acemetacina.jpg');
         this.load.image('card9', 'assets/cartas/04-Sildenafil.jpg');
+        this.load.image('card10', 'assets/cartas/01-Logo-Ultra.jpg');
+
+        this.load.font('vcr mono', 'assets/fonts/VCR_OSD_MONO_1.001.ttf');
     }
 
     create() {

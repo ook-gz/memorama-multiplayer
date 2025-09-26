@@ -6,7 +6,7 @@ export const crearCartas = ({
     cardName
 }) => {
     let isFlipping = false;
-    const backTexture = "reverso";
+    const backTexture = "reverso3";
 
     const CARD_WIDTH = 200;
     const CARD_HEIGHT = 280;
@@ -16,7 +16,7 @@ export const crearCartas = ({
         .setName(cardName)
         .setInteractive();
     
-    card.setScale(CARD_WIDTH / card.width, CARD_HEIGHT / card.height);
+    card.setDisplaySize(CARD_WIDTH, CARD_HEIGHT);
 
     const flipCard = (callbackComplete) => {
         if (isFlipping) return;
@@ -35,7 +35,7 @@ export const crearCartas = ({
                     card.setTexture(backTexture);
                 }
                 
-                card.setScale(CARD_WIDTH / card.width, CARD_HEIGHT / card.height);
+                card.setDisplaySize(CARD_WIDTH, CARD_HEIGHT);
                 // card.setDisplaySize(CARD_WIDTH, CARD_HEIGHT);
 
                 // Reabrir la carta
