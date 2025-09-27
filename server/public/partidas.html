@@ -2,117 +2,100 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Partidas activas (Tiempo real)</title>
+  <title>Partidas activas</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #f4f4f4; }
-    .ganador { font-weight: bold; color: green; }
-    .pendiente { color: #999; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { text-align: center; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #1e1e1e;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #272727;
+    }
+    tr:nth-child(even) {
+      background: #2a2a2a;
+    }
+    .jugadores {
+      font-size: 0.9em;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
-  <h1>Partidas en tiempo real</h1>
-  <div id="contenedor"></div>
-  <script src="colyseus.js"></script>
-  <script type="module">
-    const client = new window.Colyseus.Client("http://192.168.0.27:2567");
+  <h1>Partidas activas</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Room ID</th>
+        <th>Jugadores</th>
+        <th>Máx</th>
+        <th>Creación</th>
+        <th>Ganador</th>
+        <th>Detalle jugadores</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-partidas">
+      <tr><td colspan="6">Cargando...</td></tr>
+    </tbody>
+  </table>
 
-    async function listarPartidas() {
-        // 👇 nota: usamos Colyseus.Client (clase), no client (instancia)
-        const salas = await window.Colyseus.Client.getAvailableRooms("memorama");
-        console.log("🔍 Partidas activas:", salas);
+  <script>
+    async function cargarPartidas() {
+      try {
+        const res = await fetch("/api/partidas");
+        const partidas = await res.json();
 
-        // Ejemplo: mostrarlas en el contenedor
-        const contenedor = document.getElementById("contenedor");
-        contenedor.innerHTML = salas.map(sala => `
-            <div>
-            <strong>ID:</strong> ${sala.roomId}<br>
-            <strong>Jugadores:</strong> ${sala.clients}/${sala.maxClients}<br>
-            <strong>Metadata:</strong> ${JSON.stringify(sala.metadata)}
-            </div>
-            <hr>
-        `).join("");
+        const tbody = document.getElementById("tabla-partidas");
+        if (partidas.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6">No hay partidas activas</td></tr>`;
+          return;
         }
 
-    // Llamar la función
-    listarPartidas();
-    /*
+        tbody.innerHTML = partidas.map(p => {
+          const jugadores = Object.values(p.metadata.jugadores || {});
 
-    async function conectarPartida() {
-      try {
-        // ⚠️ Unirse a una sala de espectador (sin registrar jugador)
-        const room = await client.joinOrCreate("memorama", { espectador: true });
+          console.log(jugadores);
+          let ganador = jugadores.find(j => j.terminado === true);
+          console.log(ganador);
 
-        // Render inicial del estado
-        renderizar(room.state);
-
-        // Cada vez que cambie algo en el state
-        room.state.onChange = (changes) => {
-          renderizar(room.state);
-        };
-
-        // Escuchar mensajes especiales
-        room.onMessage("ganador", (data) => {
-          console.log("Ganador anunciado:", data);
-        });
-
+          return `
+            <tr>
+              <td>${p.roomId}</td>
+              <td>${p.clients}</td>
+              <td>${p.maxClients}</td>
+              <td>${new Date(p.createdAt).toLocaleString()}</td>
+              <td>${ganador != undefined || null ? ganador.nombre : "Desconocido"}</td>
+              <td>
+                <ul class="jugadores">
+                  ${jugadores.map(j => `<li>${j.nombre} (${j.sucursal}) - Tiempo: ${j.tiempo}s ${j.terminado ? "✅" : ""}</li>`).join("")}
+                </ul>
+              </td>
+            </tr>
+          `;
+        }).join("");
       } catch (err) {
-        console.error("❌ Error conectando como espectador:", err);
+        console.error("Error cargando partidas:", err);
       }
     }
 
-    function renderizar(state) {
-      if (!state) return;
-      contenedor.innerHTML = "";
-
-      const tabla = document.createElement("table");
-      tabla.innerHTML = `
-        <thead>
-          <tr>
-            <th>Jugador</th>
-            <th>Sucursal</th>
-            <th>Tiempo</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-      `;
-
-      const tbody = document.createElement("tbody");
-      for (const [id, j] of Object.entries(state.jugadores)) {
-        const tr = document.createElement("tr");
-
-        // Nombre
-        const tdNombre = document.createElement("td");
-        tdNombre.textContent = j.nombre;
-        if (state.ganador === id) tdNombre.classList.add("ganador");
-        tr.appendChild(tdNombre);
-
-        // Sucursal
-        const tdSucursal = document.createElement("td");
-        tdSucursal.textContent = j.sucursal;
-        tr.appendChild(tdSucursal);
-
-        // Tiempo
-        const tdTiempo = document.createElement("td");
-        tdTiempo.textContent = j.tiempo + "s";
-        tr.appendChild(tdTiempo);
-
-        // Estado
-        const tdEstado = document.createElement("td");
-        tdEstado.textContent = j.terminado ? "✅ Terminado" : "⏳ Jugando";
-        tr.appendChild(tdEstado);
-
-        tbody.appendChild(tr);
-      }
-      tabla.appendChild(tbody);
-      contenedor.appendChild(tabla);
-    }
-
-    conectarPartida();
-    */
+    // primera carga
+    cargarPartidas();
+    // refrescar cada 5s
+    setInterval(cargarPartidas, 5000);
   </script>
 </body>
 </html>

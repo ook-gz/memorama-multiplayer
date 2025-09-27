@@ -1,7 +1,10 @@
 {
   "scripts": {
     "dev": "vite",
-    "online": "vite --host"
+    "online": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "parcel-build": "parcel build index.html --dist-dir dist --public-url ./"
   },
   "dependencies": {
     "colyseus.js": "^0.16.19",
@@ -10,6 +13,9 @@
     "sweetalert2": "^11.23.0"
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
+    "parcel": "^2.16.0",
+    "process": "^0.11.10",
     "vite": "^6.3.6",
     "vite-plugin-pwa": "^1.0.3"
   }

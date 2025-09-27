@@ -64,18 +64,24 @@ export class MemoramaRoom extends Room {
         } catch (err) {
           console.error("❌ Error guardando participación en BD:", err);
         }
+        
+        if (this.state.ganador === null) {
+          this.state.ganador = jugador.nombre;
 
-        if (!this.state.ganador) {
-          this.state.ganador = client.sessionId;
           this.broadcast("ganador", {
             sessionId: client.sessionId,
             jugador: jugador.nombre,
             tiempo,
           });
+
+          console.log(`🎉 Ganador registrado: ${jugador.nombre}`);
+        } else {
+          console.log(`⚠️ ${jugador.nombre} terminó, pero ya hay un ganador: ${this.state.ganador}`);
         }
 
         // 🔄 actualizar metadata
         this.actualizarMetadata();
+
       }
     });
   }

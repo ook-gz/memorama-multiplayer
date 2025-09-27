@@ -166,7 +166,6 @@ export class Memorama extends Phaser.Scene {
     }
 
     iniciarJuego() {
-        console.log("iniciarJuego");
 
         const winnerText = this.add.text(this.sys.game.scale.width / 2, -1000, "Ganaste \n Toca la pantalla para continuar", {
             align: "center", strokeThickness: 4, fontSize: `${getResponsiveFontSize(40, this.sys.game.scale.width)}px`, fontStyle: "bold", color: "#8c7ae6"
@@ -393,23 +392,30 @@ export class Memorama extends Phaser.Scene {
             });
         });
 
+        /*
         this.room.onMessage("ganador", ({ sessionId, jugador, tiempo }) => {
-            if (this.room.sessionId === sessionId) {                
-                Swal.fire({
-                    title: '🎉🎉🎉',
-                    text: ` Felicidades. Has resuelto el memorama en ${tiempo} segundos!`,
-                    
-                })
-            } else {
-                // alert(`😢 El jugador ${jugador} ganó en ${tiempo} segundos`);
+            let title;
+            let text;
 
-                Swal.fire({
-                    title: '😢😢😢',
-                    text: `El jugador ${jugador} ha resuelto el memorama en ${tiempo} segundos`,
-                    close
-                })
+            if (this.room.sessionId === sessionId) {
+                title='🎉🎉🎉';
+                text=` Felicidades. Has resuelto el memorama en ${tiempo} segundos!`;
+            } else {
+                title='😢😢😢';
+                text=`El jugador ${jugador} ha resuelto el memorama en ${tiempo} segundos`;
             }
-            this.reiniciarJuego();
+
+            Swal.fire({
+                title: title,
+                text: text,
+                confirmButtonText: 'Salir de la partida',
+                showCancelButton: true,
+                cancelButtonText: 'Jugar de nuevo'
+            }).then((result) => {
+                this.room.leave(); // 🔹 Salir de la partida
+                this.reiniciarJuego();
+            });
         });
+        */
     }
 }
