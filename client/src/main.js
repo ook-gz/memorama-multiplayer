@@ -27,6 +27,10 @@ const config = {
             width: 320,
             height: 480
         },
+
+
+
+        
         max: {
             width: 1080,
             height: 1920
