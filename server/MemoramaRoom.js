@@ -8,12 +8,16 @@ export class MemoramaRoom extends Room {
         this.setState({
             jugadores: {},
             ganador: null,
-            partidaTerminada: false
+            partidaTerminada: false,
+            ranking: [],
+            historialRankings: []
         });
 
         this.setMetadata({
             jugadores: {},
             ganador: null,
+            ranking: [],
+            partidaTerminada: false
         });
 
         this.onMessage("registrar", async (client, data) => {
@@ -76,20 +80,20 @@ export class MemoramaRoom extends Room {
             }
         });
 
-        this.onMessage('tiempoFuera', (client) => {
+        this.onMessage("tiempoFuera", (client) => {
             const jugador = this.state.jugadores[client.sessionId];
             if (!jugador) return;
 
             if (!jugador.terminado) {
                 jugador.terminado = true;
-                jugador.tiempo = 30;
+                jugador.tiempo = 60; // ⬅️ Cambiar esto
                 console.log(`⏰ Jugador ${jugador.nombre} se quedó sin tiempo`);
             }
 
             this.verificarTodosTerminados("tiempo_fuera");
         });
 
-        this.onMessage('tiempoFueraGlobal', (client) => {
+        this.onMessage("tiempoFueraGlobal", (client) => {
             const jugador = this.state.jugadores[client.sessionId];
             if (!jugador) return;
 
@@ -97,8 +101,8 @@ export class MemoramaRoom extends Room {
             
             Object.values(this.state.jugadores).forEach(jugador => {
                 if (!jugador.terminado) {
-                    jugador.terminado = true;
-                    jugador.tiempo = 30;
+                    jugador.terminado = false;
+                    jugador.tiempo = Infinity; // ⬅️ Cambiar esto
                     console.log(`⏰ ${jugador.nombre} marcado por tiempo fuera global`);
                 }
             });
@@ -108,6 +112,7 @@ export class MemoramaRoom extends Room {
     }
 
     onJoin(client, options) {
+        console.log(options);
         this.state.jugadores[client.sessionId] = {
             ready: false,
             terminado: false,
@@ -132,6 +137,8 @@ export class MemoramaRoom extends Room {
         this.setMetadata({
             jugadores: this.state.jugadores,
             ganador: this.state.ganador,
+            ranking: this.state.ranking,
+            partidaTerminada: this.state.partidaTerminada
         });
     }
 
@@ -146,7 +153,20 @@ export class MemoramaRoom extends Room {
             this.state.partidaTerminada = true;
             console.log(`🎯 TODOS los jugadores han terminado (motivo: ${motivo})!`);
             
+        this.actualizarMetadata();
+
             const ranking = this.crearRankingCompleto(jugadoresActivos);
+            
+            // ✅ NUEVO: Guardar ranking en el estado
+            this.state.ranking = ranking;
+            
+            // ✅ NUEVO: Guardar en historial
+            this.state.historialRankings.push({
+                fecha: new Date().toISOString(),
+                motivo: motivo,
+                ranking: ranking
+            });
+            
             const evento = motivo.includes("tiempo_fuera") ? "partidaFinalizada" : "todosTerminaron";
             
             this.broadcast(evento, {
@@ -183,6 +203,14 @@ export class MemoramaRoom extends Room {
                 completado: jugador.tiempo > 0 && jugador.tiempo <= 30,
                 esGanador: index === 0 && (jugador.tiempo > 0 && jugador.tiempo <= 30)
             }));
+    }
+
+    obtenerRanking() {
+        return this.state.ranking;
+    }
+
+    obtenerHistorialRankings() {
+        return this.state.historialRankings;
     }
 
     verificarInicioPartida() {

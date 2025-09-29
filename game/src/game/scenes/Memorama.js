@@ -30,7 +30,7 @@ export class Memorama extends Scene {
         this.cartaAbierta = undefined;
         this.canMove = false;
         
-        this.tiempoRestante = 30; // segundos de cuenta regresiva
+        this.tiempoRestante = 60; // segundos de cuenta regresiva
         this.tiempoTexto;         // texto en pantalla
         this.paresTexto;         // texto en pantalla
         this.temporizador;        // evento de Phaser
@@ -46,7 +46,7 @@ export class Memorama extends Scene {
         this.font = 'vcr mono';
 
         //conexion a mi server multiplayer
-        this.client = new Client("http://192.168.1.66:2567");
+        this.client = new Client("http://192.168.0.27:2567");
         
         if (typeof Swal !== 'undefined') {
             // Forzar cierre de cualquier modal pendiente
@@ -161,7 +161,7 @@ export class Memorama extends Scene {
             });
         });
         
-        this.tiempoRestante = 30;
+        this.tiempoRestante = 60;
         this.detenerTemporizador();
 
         this.time.addEvent({
@@ -285,7 +285,7 @@ export class Memorama extends Scene {
                         this.detenerTemporizador();
                         this.canMove = false;
 
-                        const tiempoFinal = 30 - this.tiempoRestante;
+                        const tiempoFinal = 60 - this.tiempoRestante;
                         this.room.send("terminado", { tiempo: tiempoFinal });
                     }
                 });
@@ -301,24 +301,55 @@ export class Memorama extends Scene {
     crearFormulario() {
         
         Swal.fire({
-            title: "Registro de Jugador",
+            title: "",
             html: `
-                <form id="player-form" class="bg-white p-3 rounded-2">
+                <style>
+                    .form-container {
+                        max-width: 700px;
+                        margin: 0 auto;
+                    }
+                    .form-header {
+                        margin-bottom: 30px;
+                    }
+                    .form-title {
+                        font-size: 1.8rem;
+                        font-weight: 600;
+                        margin-bottom: 25px;
+                    }
+                    .form-label {
+                        font-size: 1.2rem;
+                        font-weight: 500;
+                    }
+                    .form-control {
+                        font-size: 1.1rem;
+                        padding: 12px 15px;
+                        height: auto;
+                    }
+                    .btn-submit {
+                        font-size: 1.2rem;
+                        padding: 12px 30px;
+                        width: 100%;
+                    }
+                </style>
+                <form id="player-form" class="bg-white p-3 rounded-2" style="max-width:700px">
                     <div class="d-flex justify-content-center">
                         <img class="text-center" src="../../assets/ultralaboratorios.png" alt="">
                     </div>
-                    <h5 class="text-center">Ingresa tus datos para jugar</h5>
+                    <br/>
+                    <h2 class="text-center">Ingresa sus datos de colaborador para jugar</h2>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre" id="nombre">
                     </div>
+                    <br/>
                     <div class="mb-3">
-                        <label for="sucursal" class="form-label">Sucursal</label>
-                        <input type="text" class="form-control" name="sucursal" id="sucursal">
+                        <label for="email" class="form-label">Número</label>
+                        <input type="number" class="form-control" name="email" id="email">
                     </div>
+                    <br/>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" id="email">
+                        <label for="sucursal" class="form-label">Región</label>
+                        <input type="text" class="form-control" name="sucursal" id="sucursal">
                     </div>
                 </form>
             `,
@@ -426,7 +457,6 @@ export class Memorama extends Scene {
                                     ${!jugador.completado ? 'text-muted' : ''}">
                             <span>
                                 ${jugador.posicion}. ${jugador.nombre}
-                                ${!jugador.completado ? ' <small class="text-danger">(No completado)</small>' : ''}
                             </span>
                             <span>${jugador.tiempo} seg</span>
                         </div>
@@ -443,7 +473,7 @@ export class Memorama extends Scene {
             allowOutsideClick: false,
             width: 500
         }).then((result) => {
-            // this.room.leave();
+            this.room.leave();
             this.reiniciarJuego();
         });
     }
