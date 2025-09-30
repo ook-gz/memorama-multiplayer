@@ -153,7 +153,6 @@ export class MemoramaRoom extends Room {
             this.state.partidaTerminada = true;
             console.log(`🎯 TODOS los jugadores han terminado (motivo: ${motivo})!`);
             
-        this.actualizarMetadata();
 
             const ranking = this.crearRankingCompleto(jugadoresActivos);
             
@@ -180,6 +179,9 @@ export class MemoramaRoom extends Room {
                 ganador: this.state.ganador,
                 motivo: motivo
             });
+
+            this.actualizarMetadata();
+
             
             console.log(`🏆 Ranking final (${motivo}):`, ranking);
             this.reiniciarSala();

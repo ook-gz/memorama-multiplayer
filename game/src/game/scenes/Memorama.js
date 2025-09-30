@@ -46,7 +46,7 @@ export class Memorama extends Scene {
         this.font = 'vcr mono';
 
         //conexion a mi server multiplayer
-        this.client = new Client("http://192.168.0.27:2567");
+        this.client = new Client("http://192.168.0.221:2567");
         
         if (typeof Swal !== 'undefined') {
             // Forzar cierre de cualquier modal pendiente
