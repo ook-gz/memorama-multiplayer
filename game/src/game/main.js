@@ -28,9 +28,6 @@ const config = {
             width: 320,
             height: 480
         },
-
-
-
         
         max: {
             width: 1080,
@@ -39,7 +36,6 @@ const config = {
         orientation: Phaser.Scale.Orientation.PORTRAIT // fuerza vertical
     }
 };
-
 
 const StartGame = (parent) => {
     return new Game({ ...config, parent });
